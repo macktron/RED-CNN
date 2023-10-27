@@ -1,0 +1,4 @@
+removed  '' signs in the shell command
+Changed Conv2D to Conv2d in networks.py
+Added a folder npy_img and added image files converted to npy format. The files are a subset of the images from https://aapm.app.box.com/s/eaw4jddb53keg1bptavvvd1sf4x3pe9h/folder/144799205162
+Thanks to the students who did this project in 2021 for converting the images and showing me how to get the code to work!

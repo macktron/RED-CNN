@@ -63,12 +63,12 @@ class Solver(object):
         f = os.path.join(self.save_path, 'REDCNN_{}iter.ckpt'.format(iter_))
         if self.multi_gpu:
             state_d = OrderedDict()
-            for k, v in torch.load(f):
+            for k, v in torch.load(f, map_location=torch.device('cpu')):
                 n = k[7:]
                 state_d[n] = v
             self.REDCNN.load_state_dict(state_d)
         else:
-            self.REDCNN.load_state_dict(torch.load(f))
+            self.REDCNN.load_state_dict(torch.load(f, map_location=torch.device('cpu')))
 
 
     def lr_decay(self):
