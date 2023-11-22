@@ -10,6 +10,7 @@ torchaudio = "*"
 numpy = "*"
 pydicom = "*"
 matplotlib = "*"
+scikit-image = "*"
 
 [dev-packages]
 
