@@ -19,10 +19,11 @@ def process_images(path, N0 = 10**10, mu_water=0.2,mu_air=0, plot=False, save=Fa
         print('Directory does not exist')
         exit()
 
-    images = [np.load(os.path.join(path, file)) for file in os.listdir(path) if file.endswith('.npy')]
+    image_names = [file for file in os.listdir(path) if file.endswith('target.npy')]
     processed_images = []
 
-    for image in images:
+    for image_name in image_names:
+        image = np.load(os.path.join(path, image_name))
         # Beräkna radontransformen
         theta = np.linspace(0., 180., max(image.shape), endpoint=False)
         sinogram = radon(image, theta=theta, circle=True)
@@ -37,13 +38,17 @@ def process_images(path, N0 = 10**10, mu_water=0.2,mu_air=0, plot=False, save=Fa
 
         p = -np.log(N / N0 + 1/10**11 )  # Lägg till  liten konstant för att undvika log med noll
         
-        
+
         # Invertera radontransformen
         reconstruction = iradon(p, theta=theta, circle=True)
 
         # Skala om
         reconstruction *= pixel_size
         CT = 1000 * (reconstruction - mu_water) / (mu_water - mu_air)
+
+        if save: 
+            np.save(os.path.join(save_dir, image_name), CT)
+            plt.imsave(os.path.join(save_dir, image_name.replace(".npy", ".pdf")), CT, cmap=plt.cm.Greys_r)
 
         if plot:
             fig, axes = plt.subplots(1, 2, figsize=(8, 4))  # Adjusted to 1 row, 2 columns
@@ -62,27 +67,12 @@ def process_images(path, N0 = 10**10, mu_water=0.2,mu_air=0, plot=False, save=Fa
 
             plt.show()
 
-        if save: 
-            for i, input_file_path in enumerate(glob.glob(os.path.join(path, '*input.npy'))):
-                input_file_base_name = os.path.basename(input_file_path)
-                base_name = input_file_base_name.replace('_input.npy', '')
-                target_file_base_name = base_name + '_target.npy'
-                target_file_path = os.path.join(path, target_file_base_name)
-
-                result_input_path = os.path.join(save_to_dir, input_file_base_name)
-                result_target_path = os.path.join(save_to_dir, target_file_base_name)
-
-                np.save(result_input_path, processed_images[i])
-
-
 
 
 # Parameters
 source_dir = 'npy_img/'  # Directory with original files
-save_to_dir = 'npy_img_physics_simulation'  # Directory to save modified files
+save_to_dir = 'npy_img_physics_simulation/'  # Directory to save modified files
 N0 = 10**12 # Antal fotoner som träffar detektorerna i tomma luften
 
 
-processed_images = process_images(source_dir, plot=True, N0=N0, mu_water=0.2, mu_air=0,save=False, save_dir=save_to_dir)
-
-
+processed_images = process_images(source_dir, plot=True, N0=N0, mu_water=0.2, mu_air=0,save=True, save_dir=save_to_dir)
