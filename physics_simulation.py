@@ -55,7 +55,7 @@ def process_image(image_path, N0 = 10**8, mu_water = 0.2, mu_air = 0.0, pixel_si
     reconstruction = iradon(p, theta=theta, circle=False)
 
     # Skala om
-    reconstruction *= pixel_size_cm
+    reconstruction /= pixel_size_cm
     
     return reconstruction
 
@@ -65,25 +65,22 @@ def get_noise(original_image, CT_image):
     # Calculate radon transform of original image and reconstruct it for comparison
     theta = np.linspace(0., 180., max(image.shape), endpoint=False)
     sinogram = radon(original_image, theta=theta, circle=False)
-    original_reconstructed = iradon(sinogram, theta=theta, circle=False)
+    original_reconstruction = iradon(sinogram, theta=theta, circle=False)
     
-    variance_original = np.std(original_reconstructed)**2
-    variance_CT = np.std(CT_image)**2
+    variance_original = np.var(original_reconstruction)
+    variance_CT = np.var(CT_image)
 
-    print(f"Original max: {np.max(original_image)} min: {np.min(original_image)}")
-    print(f"Original reconstructed max: {np.max(original_reconstructed)} min: {np.min(original_reconstructed)}")
-    print(f"CT max: {np.max(CT_image)} min: {np.min(CT_image)}")
+    print(f"Variance ratio: {variance_original / variance_CT}") 
 
-    print(f"Dose: {100*variance_original / variance_CT}%")
 
 
 source_dir = 'npy_img/'  # Directory with original files
 
-N0 = 10**5
+N0 = 5*10**4
 mu_water = 0.2
 mu_air = 0
-save = False
-plot = True
+save = True
+plot = False
 
 
 save_dir = "npy_img_physics_simulation"
