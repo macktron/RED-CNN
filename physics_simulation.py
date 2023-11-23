@@ -14,7 +14,10 @@ def save_images(CT_image, save_dir, image_name):
     np.save(os.path.join(save_dir, image_name), CT_image)
     plt.imsave(os.path.join(save_dir, image_name.replace(".npy", ".pdf")), CT_image, cmap=plt.cm.Greys_r)
 
-def plot_images(original_image, CT_image, save_path=None):
+def plot_images(image_name, CT_image, save_path=None):
+
+    original_image = np.load(image_name)
+    basename = os.path.basename(image_name)
     fig, axes = plt.subplots(1, 2, figsize=(8, 4))
     ax = axes[0]
     ax.imshow(original_image, cmap=plt.cm.Greys_r)
@@ -25,7 +28,10 @@ def plot_images(original_image, CT_image, save_path=None):
     ax.set_title('Reconstructed CT Image')
     ax.axis('off')
     if save_path:
-        plt.savefig(save_path)
+        name = basename.replace(".npy", ".pdf")
+        path = os.path.join(save_path, name)
+        print(f"Saving to {path}")
+        plt.savefig(path)
     plt.show()
 
 
@@ -80,11 +86,12 @@ N0 = 5*10**4
 mu_water = 0.2
 mu_air = 0
 save = True
-plot = False
+plot = True
+get_variance = False
 
 
-save_dir = "npy_img_physics_simulation"
-save_dir_pdf = "pdf_img_physics_simulation"
+save_dir = "npy_img_physics_simulation/"
+save_dir_pdf = "pdf_img_physics_simulation/"
 
 image_names = get_image_names(source_dir)
 
@@ -94,9 +101,11 @@ for image_name in image_names:
     image = np.load(image_path)
 
     CT = process_image(image_path, N0, mu_water, mu_air)
-    get_noise(image, CT)
 
+    if get_variance:
+        get_noise(image, CT)
     if save:
         save_images(CT, save_dir, image_name)
     if plot:
-        plot_images(np.load(image_path), CT, save_path=os.path.join(save_dir_pdf, image_name.replace(".npy", ".pdf")) if save else None)
+        print(image_path)
+        plot_images(image_path, CT, save_path= save_dir_pdf if save else None)
