@@ -34,10 +34,13 @@ def process_images(path, N0 = 10**10, mu_water=0.2,mu_air=0, plot=False, save=Fa
 
         # Beräkna antalet fotoner som har passerat genom objektet
         lambda_values = N0 * np.exp(-sinogram)
+        
         N = np.random.poisson(lambda_values)
 
-        p = -np.log(N / N0 + 1/10**11 )  # Lägg till  liten konstant för att undvika log med noll
-        
+        N = np.maximum(N, 1) # Filter out bad values
+
+        p = -np.log(N / N0)
+    
 
         # Invertera radontransformen
         reconstruction = iradon(p, theta=theta, circle=True)
@@ -71,8 +74,9 @@ def process_images(path, N0 = 10**10, mu_water=0.2,mu_air=0, plot=False, save=Fa
 
 # Parameters
 source_dir = 'npy_img/'  # Directory with original files
+save = True
 save_to_dir = 'npy_img_physics_simulation/'  # Directory to save modified files
-N0 = 10**12 # Antal fotoner som träffar detektorerna i tomma luften
+N0 = 10**15 # Antal fotoner som träffar detektorerna i tomma luften
 
 
-processed_images = process_images(source_dir, plot=True, N0=N0, mu_water=0.2, mu_air=0,save=True, save_dir=save_to_dir)
+processed_images = process_images(source_dir, plot=False, N0=N0, mu_water=0.2, mu_air=0,save=save, save_dir=save_to_dir)
