@@ -14,8 +14,7 @@ def save_images(CT_image, save_dir, image_name):
     np.save(os.path.join(save_dir, image_name), CT_image)
     plt.imsave(os.path.join(save_dir, image_name.replace(".npy", ".pdf")), CT_image, cmap=plt.cm.Greys_r)
 
-def plot_images(image_name, CT_image, save_path=None):
-
+def plot_images(image_name, CT_image,save=False, save_path=None, plot=True, N0 = 10**8):
     original_image = np.load(image_name)
     basename = os.path.basename(image_name)
     fig, axes = plt.subplots(1, 2, figsize=(8, 4))
@@ -25,14 +24,15 @@ def plot_images(image_name, CT_image, save_path=None):
     ax.axis('off')
     ax = axes[1]
     ax.imshow(CT_image, cmap=plt.cm.Greys_r)
-    ax.set_title('Reconstructed CT Image')
+    ax.set_title(f'Reconstructed CT Image N0={N0: .2e}')
     ax.axis('off')
-    if save_path:
+    if save and save_path:
         name = basename.replace(".npy", ".pdf")
         path = os.path.join(save_path, name)
         print(f"Saving to {path}")
         plt.savefig(path)
-    plt.show()
+    if plot:
+        plt.show()
 
 
 def process_image(image_path, N0 = 10**8, mu_water = 0.2, mu_air = 0.0, pixel_size_cm = 0.0264583333):
@@ -66,32 +66,17 @@ def process_image(image_path, N0 = 10**8, mu_water = 0.2, mu_air = 0.0, pixel_si
     return reconstruction
 
 
-def get_noise(original_image, CT_image):
-
-    # Calculate radon transform of original image and reconstruct it for comparison
-    theta = np.linspace(0., 180., max(image.shape), endpoint=False)
-    sinogram = radon(original_image, theta=theta, circle=False)
-    original_reconstruction = iradon(sinogram, theta=theta, circle=False)
-    
-    variance_original = np.var(original_reconstruction)
-    variance_CT = np.var(CT_image)
-
-    print(f"Variance ratio: {variance_original / variance_CT}") 
-
-
-
 source_dir = 'npy_img/'  # Directory with original files
+save_dir_npy = "npy_img_physics_simulation/"
+save_dir_pdf = "pdf_img_physics_simulation/"
 
-N0 = 5*10**4
+
+N0 = 5*10**3
 mu_water = 0.2
 mu_air = 0
 save = True
-plot = True
-get_variance = False
+plot = False
 
-
-save_dir = "npy_img_physics_simulation/"
-save_dir_pdf = "pdf_img_physics_simulation/"
 
 image_names = get_image_names(source_dir)
 
@@ -100,12 +85,11 @@ for image_name in image_names:
     image_path = os.path.join(source_dir, image_name)
     image = np.load(image_path)
 
+    print(f"Processing {image_path}")
     CT = process_image(image_path, N0, mu_water, mu_air)
 
-    if get_variance:
-        get_noise(image, CT)
     if save:
-        save_images(CT, save_dir, image_name)
-    if plot:
-        print(image_path)
-        plot_images(image_path, CT, save_path= save_dir_pdf if save else None)
+        print(f"Saving to {save_dir_npy}")
+        save_images(CT, save_dir_npy, image_name)
+    if plot or save:
+        plot_images(image_path, CT, plot=plot, save=save, N0=N0, save_path= save_dir_pdf)
