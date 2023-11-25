@@ -11,8 +11,9 @@ def get_image_names(path):
     return [file for file in os.listdir(path) if file.endswith('target.npy')]
 
 def save_images(CT_image, save_dir, image_name):
-    np.save(os.path.join(save_dir, image_name), CT_image)
-    plt.imsave(os.path.join(save_dir, image_name.replace(".npy", ".pdf")), CT_image, cmap=plt.cm.Greys_r)
+    input_name = image_name.replace("target", "input")
+    np.save(os.path.join(save_dir, input_name), CT_image)
+    #plt.imsave(os.path.join(save_dir, image_name.replace(".npy", ".pdf")), CT_image, cmap=plt.cm.Greys_r)
 
 def plot_images(image_name, CT_image,save=False, save_path=None, plot=True, N0 = 10**8):
     original_image = np.load(image_name)
@@ -67,8 +68,8 @@ def process_image(image_path, N0 = 10**8, mu_water = 0.2, mu_air = 0.0, pixel_si
 
 
 source_dir = 'npy_img/'  # Directory with original files
-save_dir_npy = "npy_img_physics_simulation/"
-save_dir_pdf = "pdf_img_physics_simulation/"
+save_dir_npy = "lowdose_simulation/npy_img_physics_simulation/"
+save_dir_pdf = "lowdose_simulation/pdf_img_physics_simulation/"
 
 
 N0 = 5*10**3

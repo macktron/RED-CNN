@@ -92,8 +92,8 @@ plt.show()"""
 
 
 # Parameters
-source_dir = 'npy_img/'  # Directory with original files
-save_to_dir = 'npy_img_sim'  # Directory to save modified files
+source_dir = 'lowdose_simulation/npy_img_physics_simulation/'  # Directory with original files
+save_to_dir = 'lowdose_simulation/with_tumor'  # Directory to save modified files
 
 sigma = 5
 amplitude_percentage = 0.3
